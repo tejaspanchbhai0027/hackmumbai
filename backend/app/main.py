@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.config import get_settings
 from app.database import init_db
-from app.routers import predict, history
+from app.routers import predict, history, upload
 from app.services.ml_service import get_ml_service
 
 settings = get_settings()
@@ -75,6 +75,7 @@ app.add_middleware(
 # Include routers
 app.include_router(predict.router)
 app.include_router(history.router)
+app.include_router(upload.router)
 
 
 @app.get("/", tags=["root"])

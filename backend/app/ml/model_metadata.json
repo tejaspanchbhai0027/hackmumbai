@@ -1,22 +1,15 @@
 {
-  "train_r2": 0.83642950148381,
-  "test_r2": 0.8537447137159516,
-  "train_mae": 2.288581663231794,
-  "test_mae": 2.3108582358958336,
-  "train_rmse": 2.683137733254513,
-  "test_rmse": 2.785997607433121,
-  "feature_importance": {
-    "hours_studied": 4.897952687912326,
-    "sleep_hours": 1.2920694144791187,
-    "attendance_percent": 1.5296258598222496,
-    "previous_scores": 2.830748778581184
-  },
-  "intercept": 33.85125000000001,
-  "feature_names": [
-    "hours_studied",
-    "sleep_hours",
-    "attendance_percent",
-    "previous_scores"
-  ],
-  "model_version": "1.0.0"
+    "regression": {
+        "mae": 6.94,
+        "r2": 0.76
+    },
+    "classification": {
+        "accuracy": 0.86
+    },
+    "features": [
+        "hours_studied",
+        "sleep_hours",
+        "attendance_percent",
+        "previous_scores"
+    ]
 }

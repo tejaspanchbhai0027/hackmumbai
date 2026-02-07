@@ -20,14 +20,30 @@ class PredictionRequest(BaseModel):
         }
 
 
+class StudyCoachAdvice(BaseModel):
+    """Schema for AI Study Coach advice."""
+    summary: str
+    strengths: List[str]
+    improvements: List[str]
+    actionable_steps: List[str]
+    motivational_quote: str
+
+
+class ClassificationResult(BaseModel):
+    status: str
+    pass_probability: float
+
+
 class PredictionResponse(BaseModel):
     """Schema for prediction response."""
     
     predicted_score: float = Field(..., description="Predicted exam score (0-100)")
     confidence_lower: Optional[float] = Field(None, description="Lower bound of confidence interval")
     confidence_upper: Optional[float] = Field(None, description="Upper bound of confidence interval")
+    classification: Optional[ClassificationResult] = Field(None, description="Classification result (Pass/Fail)")
     feature_importance: Dict[str, float] = Field(..., description="Feature importance weights")
     interpretation: str = Field(..., description="Human-readable interpretation of the result")
+    study_coach: Optional[StudyCoachAdvice] = Field(None, description="Detailed AI Study Coach advice")
     prediction_id: Optional[int] = Field(None, description="Database ID of saved prediction")
     
     class Config:
@@ -43,6 +59,13 @@ class PredictionResponse(BaseModel):
                     "sleep_hours": 0.10
                 },
                 "interpretation": "Good performance expected. Your study habits and previous scores indicate above-average results.",
+                "study_coach": {
+                    "summary": "You are on the right track but consistency is key.",
+                    "strengths": ["Good attendance"],
+                    "improvements": ["Increase study hours"],
+                    "actionable_steps": ["Study 2 more hours per week"],
+                    "motivational_quote": "Success is the sum of small efforts repeated day in and day out."
+                },
                 "prediction_id": 1
             }
         }
