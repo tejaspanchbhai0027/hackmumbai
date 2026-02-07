@@ -51,6 +51,4 @@ Thumbs.db
 data/raw/
 data/processed/
 models/
-backend/
-docs/
-README_local.md
+
