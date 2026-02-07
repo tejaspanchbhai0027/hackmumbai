@@ -5,13 +5,40 @@ export interface StudentInput {
     previous_scores: number;
 }
 
+export interface StudyCoachAdvice {
+    summary: string;
+    strengths: string[];
+    improvements: string[];
+    actionable_steps: string[];
+    motivational_quote: string;
+}
+
+export interface ClassificationResult {
+    status: string;
+    pass_probability: number;
+}
+
 export interface PredictionResponse {
     predicted_score: number;
     confidence_lower: number | null;
     confidence_upper: number | null;
+    classification?: ClassificationResult;
     feature_importance: Record<string, number>;
     interpretation: string;
+    study_coach?: StudyCoachAdvice;
     prediction_id: number | null;
+}
+
+export interface BatchPredictionItem extends PredictionResponse {
+    student_name: string;
+}
+
+export interface BatchPredictionResponse {
+    total_processed: number;
+    successful: number;
+    failed: number;
+    results: BatchPredictionItem[];
+    errors: string[];
 }
 
 export interface PredictionHistory {

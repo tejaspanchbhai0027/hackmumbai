@@ -12,8 +12,12 @@
   }
 
   body {
-    @apply bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white min-h-screen;
+    @apply bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-white min-h-screen transition-colors duration-300;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+    /* Gradient backgrounds */
+    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+    @apply from-blue-50 via-indigo-50 to-blue-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900;
   }
 
   h1,
@@ -28,7 +32,7 @@
 
 @layer components {
   .glass {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20;
+    @apply bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/20 transition-all duration-300;
   }
 
   .glass-hover {
@@ -44,15 +48,15 @@
   }
 
   .btn-secondary {
-    @apply px-6 py-3 glass glass-hover text-white font-semibold rounded-lg shadow-lg transition-all duration-300;
+    @apply px-6 py-3 glass glass-hover text-slate-700 dark:text-white font-semibold rounded-lg shadow-lg transition-all duration-300;
   }
 
   .input-field {
-    @apply w-full px-4 py-3 glass rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300;
+    @apply w-full px-4 py-3 bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300;
   }
 
   .card {
-    @apply glass rounded-xl p-6 shadow-glass hover:shadow-glow-lg transition-all duration-300;
+    @apply bg-white/80 dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/20 rounded-xl p-6 shadow-xl dark:shadow-glass hover:shadow-2xl dark:hover:shadow-glow-lg transition-all duration-300;
   }
 }
 

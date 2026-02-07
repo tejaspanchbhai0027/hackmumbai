@@ -1,13 +1,10 @@
 import axios from 'axios';
-import { StudentInput, PredictionResponse, PredictionHistoryResponse, ModelInfo } from '../types';
+import { StudentInput, PredictionResponse, PredictionHistoryResponse, ModelInfo, BatchPredictionResponse } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 // Request interceptor
@@ -25,7 +22,10 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        const message = error.response?.data?.detail || error.message || 'An error occurred';
+        let message = error.response?.data?.detail || error.message || 'An error occurred';
+        if (typeof message === 'object') {
+            message = JSON.stringify(message);
+        }
         console.error('API Error:', message);
         return Promise.reject(new Error(message));
     }
@@ -33,6 +33,18 @@ api.interceptors.response.use(
 
 export const predictScore = async (studentData: StudentInput): Promise<PredictionResponse> => {
     const response = await api.post<PredictionResponse>('/api/predict', studentData);
+    return response.data;
+};
+
+export const simulateScore = async (studentData: StudentInput): Promise<PredictionResponse> => {
+    const response = await api.post<PredictionResponse>('/api/simulate', studentData);
+    return response.data;
+};
+
+export const uploadCSV = async (file: File): Promise<BatchPredictionResponse> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post<BatchPredictionResponse>('/api/upload/csv', formData);
     return response.data;
 };
 
