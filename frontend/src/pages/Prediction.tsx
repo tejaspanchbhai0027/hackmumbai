@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import Card from '../components/common/Card';
-import { StudentInput, PredictionResponse } from '../types';
+import { StudentInput } from '../types';
 import { predictScore } from '../services/api';
 
 const Prediction: React.FC = () => {
@@ -40,7 +40,7 @@ const Prediction: React.FC = () => {
                     <h1 className="text-5xl font-display font-bold mb-4">
                         <span className="gradient-text">Predict Your Success</span>
                     </h1>
-                    <p className="text-gray-300 text-lg">
+                    <p className="text-gray-600 dark:text-gray-300 text-lg">
                         Enter your academic details to get an AI-powered prediction of your exam performance.
                     </p>
                 </div>
@@ -144,7 +144,7 @@ const Prediction: React.FC = () => {
                     </form>
                 </Card>
 
-                <div className="mt-6 text-center text-sm text-gray-400">
+                <div className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
                     <p>🔒 Your data is processed securely and saved for your reference.</p>
                 </div>
             </div>
