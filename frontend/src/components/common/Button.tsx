@@ -20,8 +20,8 @@ const Button: React.FC<ButtonProps> = ({
 
     const variantClasses = {
         primary: 'bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg hover:shadow-glow hover:scale-105',
-        secondary: 'glass glass-hover text-white shadow-lg',
-        outline: 'border-2 border-primary-500 text-primary-400 hover:bg-primary-500/10 hover:scale-105',
+        secondary: 'glass glass-hover text-slate-700 dark:text-white shadow-lg',
+        outline: 'border-2 border-primary-600 dark:border-primary-500 text-primary-600 dark:text-primary-400 hover:bg-primary-500/10 hover:scale-105',
     };
 
     const sizeClasses = {
