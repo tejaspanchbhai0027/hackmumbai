@@ -10,13 +10,10 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    // Default to dark for student portal aesthetic, or check local storage
     const [theme, setTheme] = useState<Theme>(() => {
-        // Check local storage
-        const savedTheme = localStorage.getItem('theme') as Theme;
-        if (savedTheme) return savedTheme;
-        // Check system preference
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches) return 'dark';
-        return 'light';
+        const saved = localStorage.getItem('theme');
+        return (saved as Theme) || 'dark'; // Default preference
     });
 
     useEffect(() => {
@@ -30,7 +27,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }, [theme]);
 
     const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+        setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
     };
 
     return (

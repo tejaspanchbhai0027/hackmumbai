@@ -2,70 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-
-
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-
-  body {
-    @apply bg-gray-50 dark:bg-slate-900 text-slate-900 dark:text-white min-h-screen transition-colors duration-300;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
-
-    /* Gradient backgrounds */
-    background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-    @apply from-blue-50 via-indigo-50 to-blue-50 dark:from-slate-900 dark:via-purple-900 dark:to-slate-900;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: 'Outfit', system-ui, -apple-system, sans-serif;
-  }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-@layer components {
-  .glass {
-    @apply bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/20 transition-all duration-300;
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full hover:bg-slate-400 dark:hover:bg-slate-600 border-2 border-transparent bg-clip-content;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: theme('colors.slate.300') transparent;
+}
+
+.dark * {
+  scrollbar-color: theme('colors.slate.700') transparent;
+}
+
+@layer base {
+
+  /* Fix for combobox/select dropdown options visibility in dark mode */
+  select option {
+    @apply bg-white dark:bg-slate-900 text-slate-900 dark:text-white;
   }
 
-  .glass-hover {
-    @apply hover:bg-white/15 transition-all duration-300;
+  /* Ensure select elements have proper backgrounds */
+  select {
+    @apply dark:bg-slate-800 dark:text-white;
   }
 
-  .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 via-secondary-400 to-primary-400 bg-clip-text text-transparent;
-  }
-
-  .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-glow transition-all duration-300 transform hover:scale-105;
-  }
-
-  .btn-secondary {
-    @apply px-6 py-3 glass glass-hover text-slate-700 dark:text-white font-semibold rounded-lg shadow-lg transition-all duration-300;
-  }
-
-  .input-field {
-    @apply w-full px-4 py-3 bg-white/50 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 rounded-lg text-slate-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-300;
-  }
-
-  .card {
-    @apply bg-white/80 dark:bg-white/10 backdrop-blur-lg border border-gray-200 dark:border-white/20 rounded-xl p-6 shadow-xl dark:shadow-glass hover:shadow-2xl dark:hover:shadow-glow-lg transition-all duration-300;
+  /* Performance: GPU acceleration for animations */
+  * {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 @layer utilities {
-  .text-shadow {
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+  /* Custom scrollbar for better performance */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
   }
 
-  .glow {
-    box-shadow: 0 0 20px currentColor;
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-600 rounded-full;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-500;
+  }
+
+  /* Fade-in animation for better perceived performance */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.4s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Blob animation for decorative elements */
+  .animate-blob {
+    animation: blob 7s infinite;
+  }
+
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
   }
 }
