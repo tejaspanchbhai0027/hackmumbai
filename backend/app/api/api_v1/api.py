@@ -23,3 +23,7 @@ api_router.include_router(marks.router, prefix="/marks", tags=["marks"])
 # Add results router
 from app.api.endpoints import results
 api_router.include_router(results.router, prefix="/results", tags=["results"])
+
+# Add placement router  
+from app.api.endpoints import placement
+api_router.include_router(placement.router)
