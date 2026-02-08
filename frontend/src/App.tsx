@@ -16,6 +16,12 @@ import { Transcript } from './pages/student/Transcript';
 import { CheckResults } from './pages/student/CheckResults';
 import ResumeBuilder from './pages/student/ResumeBuilder';
 
+// Student Placement Pages
+import PlacementDashboard from './pages/student/PlacementDashboard';
+import JobListings from './pages/student/JobListings';
+import PlacementChecker from './pages/student/PlacementChecker';
+import PlacementStats from './pages/student/PlacementStats';
+
 
 // Admin Pages
 import { StudentList } from './pages/admin/StudentList';
@@ -37,6 +43,12 @@ import { AttendancePage } from './pages/teacher/AttendancePage';
 import { StudentPerformance } from './pages/teacher/StudentPerformance';
 import { TeacherPredictions } from './pages/teacher/TeacherPredictions';
 import BulkPrediction from './pages/teacher/BulkPrediction';
+
+// Placement Coordinator Pages
+import CoordinatorDashboard from './pages/placement/CoordinatorDashboard';
+import JobManagement from './pages/placement/JobManagement';
+import PlacementBulkPrediction from './pages/placement/BulkPrediction';
+import PlacementRecords from './pages/placement/PlacementRecords';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; layout?: 'standard' | 'student' }> = ({ children, layout = 'standard' }) => {
   const { isAuthenticated, user } = useAuth();
@@ -148,6 +160,40 @@ function App() {
               element={
                 <ProtectedRoute layout="student">
                   <ResumeBuilder />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Student Placement Routes */}
+            <Route
+              path="/student/placement"
+              element={
+                <ProtectedRoute layout="student">
+                  <PlacementDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/placement/jobs"
+              element={
+                <ProtectedRoute layout="student">
+                  <JobListings />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/placement/prediction"
+              element={
+                <ProtectedRoute layout="student">
+                  <PlacementChecker />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/placement/stats"
+              element={
+                <ProtectedRoute layout="student">
+                  <PlacementStats />
                 </ProtectedRoute>
               }
             />
@@ -321,6 +367,40 @@ function App() {
               element={
                 <ProtectedRoute>
                   <BulkPrediction />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Placement Coordinator Module */}
+            <Route
+              path="/placement/dashboard"
+              element={
+                <ProtectedRoute>
+                  <CoordinatorDashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/placement/jobs"
+              element={
+                <ProtectedRoute>
+                  <JobManagement />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/placement/bulk-prediction"
+              element={
+                <ProtectedRoute>
+                  <PlacementBulkPrediction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/placement/records"
+              element={
+                <ProtectedRoute>
+                  <PlacementRecords />
                 </ProtectedRoute>
               }
             />

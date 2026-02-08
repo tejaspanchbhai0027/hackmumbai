@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, GraduationCap, LogOut, BookOpen, Clock, TrendingUp, Award, Edit, UserCircle, Trophy, Moon, Sun, ChevronRight, Menu, Brain, Upload } from 'lucide-react';
+import { LayoutDashboard, Users, GraduationCap, LogOut, BookOpen, Clock, TrendingUp, Award, Edit, UserCircle, Trophy, Moon, Sun, ChevronRight, Menu, Brain, Upload, Briefcase, FileText, Target, BarChart2, Search } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { clsx } from 'clsx';
@@ -35,6 +35,27 @@ export const Sidebar: React.FC = () => {
             { to: '/results', icon: Trophy, label: 'Results & Merit' },
             { to: '/analytics', icon: TrendingUp, label: 'Analytics' },
             { to: '/predictions', icon: TrendingUp, label: 'AI Predictions' },
+        ] : []),
+
+        // Student Only
+        ...(user?.role === 'student' ? [
+            { to: '/student/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+            { to: '/student/results', icon: Trophy, label: 'Results' },
+            { to: '/student/transcript', icon: FileText, label: 'Transcript' },
+            { to: '/student/resume', icon: FileText, label: 'Resume Builder' },
+            // Placement Section
+            { to: '/student/placement', icon: Briefcase, label: 'Placement Portal' },
+            { to: '/student/placement/jobs', icon: Search, label: 'Job Listings' },
+            { to: '/student/placement/prediction', icon: Target, label: 'My Prediction' },
+            { to: '/student/placement/stats', icon: BarChart2, label: 'Placement Stats' },
+        ] : []),
+
+        // Placement Coordinator Only
+        ...(user?.role === 'placement_coordinator' ? [
+            { to: '/placement/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+            { to: '/placement/jobs', icon: Briefcase, label: 'Job Management' },
+            { to: '/placement/bulk-prediction', icon: Upload, label: 'AI Predictions' },
+            { to: '/placement/records', icon: FileText, label: 'Records' },
         ] : []),
     ];
 

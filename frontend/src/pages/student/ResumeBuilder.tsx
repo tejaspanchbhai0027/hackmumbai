@@ -5,7 +5,9 @@ import {
     Download, Save, ChevronRight, ChevronLeft, Eye, Sparkles,
     Linkedin, Github, Globe, Phone, Mail
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import api from '../../services/api';
 
 interface ResumeData {
     full_name: string;
@@ -25,10 +27,11 @@ interface ResumeData {
 
 const ResumeBuilder: React.FC = () => {
     const { theme } = useTheme();
+    const { user } = useAuth();
     const [activeTab, setActiveTab] = useState(0);
     const [resumeData, setResumeData] = useState<ResumeData>({
-        full_name: '',
-        email: '',
+        full_name: user?.name || '',
+        email: user?.email || '',
         phone: '',
         linkedin_url: '',
         github_url: '',
@@ -43,22 +46,51 @@ const ResumeBuilder: React.FC = () => {
     });
     const [showPreview, setShowPreview] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [resumeId, setResumeId] = useState<number | null>(null);
+
+    // Fetch existing resume on mount
+    React.useEffect(() => {
+        if (user?.student_id) {
+            api.get(`/api/v1/resume/${user.student_id}`)
+                .then(res => {
+                    setResumeData(res.data);
+                    setResumeId(res.data.id);
+                })
+                .catch(err => {
+                    // 404 is fine, means no resume yet
+                    if (err.response?.status !== 404) {
+                        console.error('Error fetching resume:', err);
+                    }
+                });
+        }
+    }, [user]);
 
     const tabs = [
-        { icon: User, label: 'Personal', color: 'from-violet-500 to-purple-600' },
-        { icon: GraduationCap, label: 'Education', color: 'from-blue-500 to-cyan-600' },
-        { icon: Code, label: 'Skills', color: 'from-green-500 to-emerald-600' },
-        { icon: Briefcase, label: 'Experience', color: 'from-orange-500 to-amber-600' },
-        { icon: FileText, label: 'Projects', color: 'from-pink-500 to-rose-600' },
-        { icon: Award, label: 'Extras', color: 'from-indigo-500 to-blue-600' },
+        { icon: User, label: 'Personal', color: 'text-violet-500' },
+        { icon: GraduationCap, label: 'Education', color: 'text-blue-500' },
+        { icon: Code, label: 'Skills', color: 'text-green-500' },
+        { icon: Briefcase, label: 'Experience', color: 'text-orange-500' },
+        { icon: FileText, label: 'Projects', color: 'text-pink-500' },
+        { icon: Award, label: 'Extras', color: 'text-indigo-500' },
     ];
 
     const handleSave = async () => {
+        if (!user?.student_id) {
+            console.error("No student ID found");
+            return;
+        }
         setSaving(true);
         try {
-            // TODO: Implement save API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            console.log('Resume saved:', resumeData);
+            const payload = { ...resumeData, student_id: user.student_id };
+            let response;
+            if (resumeId) {
+                response = await api.put(`/api/v1/resume/${resumeId}`, payload);
+            } else {
+                response = await api.post('/api/v1/resume/', payload);
+                setResumeId(response.data.id);
+            }
+            console.log('Resume saved:', response.data);
+            // Optional: Add toast notification here
         } catch (error) {
             console.error('Error saving resume:', error);
         } finally {
@@ -67,15 +99,25 @@ const ResumeBuilder: React.FC = () => {
     };
 
     const handleDownloadPDF = async () => {
-        // TODO: Implement PDF download
-        console.log('Downloading PDF...');
+        if (!resumeId) return;
+        try {
+            const response = await api.get(`/api/v1/resume/${resumeId}/pdf`, {
+                responseType: 'blob'
+            });
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `${resumeData.full_name.replace(' ', '_')}_Resume.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (error) {
+            console.error("Error downloading PDF", error);
+        }
     };
 
     return (
-        <div className={`absolute inset-0 overflow-y-auto p-6 ${theme === 'dark'
-                ? 'bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900'
-                : 'bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50'
-            }`}>
+        <div className="h-full overflow-y-auto p-6 scroll-smooth">
             <div className="max-w-7xl mx-auto pb-12">
                 {/* Header */}
                 <motion.div
@@ -100,8 +142,8 @@ const ResumeBuilder: React.FC = () => {
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => setShowPreview(!showPreview)}
                                 className={`px-6 py-3 backdrop-blur-lg border rounded-xl font-medium flex items-center gap-2 transition-all ${theme === 'dark'
-                                        ? 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-                                        : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-md'
+                                    ? 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                                    : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 shadow-md'
                                     }`}
                             >
                                 <Eye size={20} />
@@ -125,8 +167,8 @@ const ResumeBuilder: React.FC = () => {
                     <div className={`${showPreview ? 'col-span-7' : 'col-span-12'} transition-all duration-300`}>
                         {/* Tab Navigation */}
                         <div className={`backdrop-blur-xl border rounded-2xl p-2 mb-6 ${theme === 'dark'
-                                ? 'bg-white/5 border-white/10'
-                                : 'bg-white border-slate-300 shadow-xl'
+                            ? 'bg-white/5 border-white/10'
+                            : 'bg-white border-slate-200 shadow-sm'
                             }`}>
                             <div className="grid grid-cols-6 gap-2">
                                 {tabs.map((tab, index) => (
@@ -136,18 +178,18 @@ const ResumeBuilder: React.FC = () => {
                                         whileTap={{ scale: 0.98 }}
                                         onClick={() => setActiveTab(index)}
                                         className={`relative px-4 py-3 rounded-xl flex flex-col items-center gap-2 transition-all ${activeTab === index
-                                                ? 'bg-gradient-to-br text-white shadow-lg'
-                                                : theme === 'dark'
-                                                    ? 'text-slate-400 hover:text-white hover:bg-white/5'
-                                                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                                            } ${activeTab === index ? tab.color : ''}`}
+                                            ? 'bg-violet-600 text-white shadow-md'
+                                            : theme === 'dark'
+                                                ? 'text-slate-400 hover:text-white hover:bg-white/5'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+                                            } ${activeTab === index ? '' : tab.color}`}
                                     >
                                         <tab.icon size={24} />
                                         <span className="text-xs font-medium">{tab.label}</span>
                                         {activeTab === index && (
                                             <motion.div
                                                 layoutId="activeTab"
-                                                className="absolute inset-0 bg-gradient-to-br opacity-20 rounded-xl"
+                                                className="absolute inset-0 bg-white/10 rounded-xl"
                                             />
                                         )}
                                     </motion.button>
@@ -162,8 +204,8 @@ const ResumeBuilder: React.FC = () => {
                             animate={{ opacity: 1, x: 0 }}
                             exit={{ opacity: 0, x: -20 }}
                             className={`backdrop-blur-xl border rounded-2xl p-8 ${theme === 'dark'
-                                    ? 'bg-white/5 border-white/10'
-                                    : 'bg-white border-slate-300 shadow-xl'
+                                ? 'bg-white/5 border-white/10'
+                                : 'bg-white border-slate-200 shadow-sm'
                                 }`}
                         >
                             <AnimatePresence mode="wait">
@@ -176,7 +218,7 @@ const ResumeBuilder: React.FC = () => {
                             </AnimatePresence>
 
                             {/* Navigation Buttons */}
-                            <div className={`flex justify-between mt-8 pt-6 border-t ${theme === 'dark' ? 'border-white/10' : 'border-slate-200'
+                            <div className={`flex justify-between mt-8 pt-6 border-t ${theme === 'dark' ? 'border-white/10' : 'border-slate-100'
                                 }`}>
                                 <motion.button
                                     whileHover={{ scale: 1.05 }}
@@ -184,8 +226,8 @@ const ResumeBuilder: React.FC = () => {
                                     onClick={() => setActiveTab(Math.max(0, activeTab - 1))}
                                     disabled={activeTab === 0}
                                     className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${theme === 'dark'
-                                            ? 'bg-white/10 text-white hover:bg-white/20'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                        ? 'bg-white/10 text-white hover:bg-white/20'
+                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                                         }`}
                                 >
                                     <ChevronLeft size={20} />
@@ -197,7 +239,7 @@ const ResumeBuilder: React.FC = () => {
                                     whileTap={{ scale: 0.95 }}
                                     onClick={handleSave}
                                     disabled={saving}
-                                    className="px-8 py-3 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl text-white font-medium flex items-center gap-2 shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transition-all disabled:opacity-50"
+                                    className="px-8 py-3 bg-violet-600 text-white rounded-xl font-medium flex items-center gap-2 shadow-lg shadow-violet-200 hover:bg-violet-700 transition-all disabled:opacity-50"
                                 >
                                     {saving ? (
                                         <>
@@ -218,8 +260,8 @@ const ResumeBuilder: React.FC = () => {
                                     onClick={() => setActiveTab(Math.min(tabs.length - 1, activeTab + 1))}
                                     disabled={activeTab === tabs.length - 1}
                                     className={`px-6 py-3 rounded-xl font-medium flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all ${theme === 'dark'
-                                            ? 'bg-white/10 text-white hover:bg-white/20'
-                                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                        ? 'bg-white/10 text-white hover:bg-white/20'
+                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200'
                                         }`}
                                 >
                                     Next
@@ -238,8 +280,11 @@ const ResumeBuilder: React.FC = () => {
                                 exit={{ opacity: 0, x: 50 }}
                                 className="col-span-5"
                             >
-                                <div className="sticky top-6 bg-white rounded-2xl p-8 shadow-2xl max-h-[calc(100vh-8rem)] overflow-y-auto border border-slate-200">
-                                    <h3 className="text-2xl font-bold text-slate-800 mb-6">Live Preview</h3>
+                                <div className={`sticky top-6 rounded-2xl p-8 shadow-sm max-h-[calc(100vh-8rem)] overflow-y-auto border ${theme === 'dark'
+                                    ? 'bg-slate-800 border-slate-700 text-slate-300'
+                                    : 'bg-white border-slate-200 text-slate-600'
+                                    }`}>
+                                    <h3 className={`text-2xl font-bold mb-6 ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>Live Preview</h3>
                                     <ResumePreview data={resumeData} />
                                 </div>
                             </motion.div>
@@ -276,8 +321,8 @@ const PersonalInfoTab: React.FC<{ data: ResumeData; setData: React.Dispatch<Reac
                 onChange={(e) => setData({ ...data, summary: e.target.value })}
                 rows={4}
                 className={`w-full px-4 py-3 border rounded-xl transition-all resize-none ${theme === 'dark'
-                        ? 'bg-white/5 border-white/10 text-white placeholder-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                        : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                    ? 'bg-white/5 border-white/10 text-white placeholder-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100'
                     }`}
                 placeholder="Brief description of your professional background and career objectives..."
             />
@@ -291,14 +336,14 @@ const FormInput: React.FC<{ label: string; icon: any; value: string; onChange: (
             {label}
         </label>
         <div className="relative">
-            <Icon className={`absolute left-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`} size={20} />
+            <Icon className={`absolute left-3 top-1/2 -translate-y-1/2 ${theme === 'dark' ? 'text-slate-400' : 'text-slate-400'}`} size={20} />
             <input
                 type={type}
                 value={value}
                 onChange={onChange}
                 className={`w-full pl-11 pr-4 py-3 border rounded-xl transition-all ${theme === 'dark'
-                        ? 'bg-white/5 border-white/10 text-white placeholder-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
-                        : 'bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                    ? 'bg-white/5 border-white/10 text-white placeholder-slate-500 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20'
+                    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-100'
                     }`}
                 placeholder={`Enter ${label.toLowerCase()}...`}
             />

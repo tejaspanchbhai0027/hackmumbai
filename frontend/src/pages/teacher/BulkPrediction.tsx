@@ -78,6 +78,9 @@ const BulkPrediction: React.FC = () => {
         }
     };
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 50;
+
     const exportResults = () => {
         if (!results) return;
         const csvContent = [
@@ -95,7 +98,7 @@ const BulkPrediction: React.FC = () => {
         a.click();
     };
 
-    const filteredPredictions = results?.predictions.filter(p => {
+    const allFilteredPredictions = results?.predictions.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             p.student_id.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesFilter = filterClass === null || p.predicted_class === filterClass;
@@ -105,7 +108,19 @@ const BulkPrediction: React.FC = () => {
         if (sortBy === 'confidence') return b.confidence - a.confidence;
         if (sortBy === 'score') return b.features.avg_score - a.features.avg_score;
         return 0;
-    });
+    }) || [];
+
+    const totalPages = Math.ceil(allFilteredPredictions.length / itemsPerPage);
+    const paginatedPredictions = allFilteredPredictions.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    const handlePageChange = (newPage: number) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+            setCurrentPage(newPage);
+        }
+    };
 
     const getClassColor = (predictedClass: number) => {
         const colors = [
@@ -138,8 +153,8 @@ const BulkPrediction: React.FC = () => {
                         onDrop={handleDrop}
                         onDragOver={(e) => e.preventDefault()}
                         className={`border-2 border-dashed rounded-xl p-12 text-center transition-colors ${file
-                                ? 'border-green-400 bg-green-50 dark:bg-green-900/10'
-                                : 'border-slate-300 dark:border-slate-600 hover:border-violet-400 dark:hover:border-violet-500'
+                            ? 'border-green-400 bg-green-50 dark:bg-green-900/10'
+                            : 'border-slate-300 dark:border-slate-600 hover:border-violet-400 dark:hover:border-violet-500'
                             }`}
                     >
                         {file ? (
@@ -278,14 +293,14 @@ const BulkPrediction: React.FC = () => {
                                         type="text"
                                         placeholder="Search by name or ID..."
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
                                         className="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-violet-500"
                                     />
                                 </div>
 
                                 <select
                                     value={filterClass === null ? '' : filterClass}
-                                    onChange={(e) => setFilterClass(e.target.value === '' ? null : parseInt(e.target.value))}
+                                    onChange={(e) => { setFilterClass(e.target.value === '' ? null : parseInt(e.target.value)); setCurrentPage(1); }}
                                     className="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-violet-500"
                                 >
                                     <option value="">All Predictions</option>
@@ -330,7 +345,7 @@ const BulkPrediction: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden flex flex-col">
                         <div className="overflow-x-auto">
                             <table className="w-full">
                                 <thead className="bg-slate-50 dark:bg-slate-700 border-b border-slate-200 dark:border-slate-600">
@@ -345,12 +360,9 @@ const BulkPrediction: React.FC = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-200 dark:divide-slate-700">
-                                    {filteredPredictions?.map((prediction, index) => (
-                                        <motion.tr
+                                    {paginatedPredictions.map((prediction) => (
+                                        <tr
                                             key={prediction.student_id}
-                                            initial={{ opacity: 0, y: 20 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            transition={{ delay: index * 0.02 }}
                                             className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
                                         >
                                             <td className="px-6 py-4 text-sm text-slate-900 dark:text-white font-medium">{prediction.student_id}</td>
@@ -365,15 +377,37 @@ const BulkPrediction: React.FC = () => {
                                             <td className="px-6 py-4 text-sm text-slate-900 dark:text-white font-semibold">{(prediction.confidence * 100).toFixed(1)}%</td>
                                             <td className="px-6 py-4 text-sm text-slate-900 dark:text-white">{prediction.features.avg_score.toFixed(1)}</td>
                                             <td className="px-6 py-4 text-sm text-slate-900 dark:text-white">{prediction.features.attendance_rate.toFixed(1)}%</td>
-                                        </motion.tr>
+                                        </tr>
                                     ))}
                                 </tbody>
                             </table>
                         </div>
 
-                        {filteredPredictions && filteredPredictions.length === 0 && (
+                        {allFilteredPredictions.length === 0 ? (
                             <div className="text-center py-12 text-slate-500 dark:text-slate-400">
                                 No students match your search criteria
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
+                                <div className="text-sm text-slate-500 dark:text-slate-400">
+                                    Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to <span className="font-medium">{Math.min(currentPage * itemsPerPage, allFilteredPredictions.length)}</span> of <span className="font-medium">{allFilteredPredictions.length}</span> results
+                                </div>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="px-3 py-1 text-sm font-medium rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Previous
+                                    </button>
+                                    <button
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="px-3 py-1 text-sm font-medium rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    >
+                                        Next
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

@@ -9,7 +9,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
             {/* Main content area */}
             <main className="flex-1 flex flex-col min-h-0 overflow-hidden relative">
-                <div className="absolute inset-0 w-full h-full">
+                <div className="absolute inset-0 w-full h-full overflow-y-auto custom-scrollbar">
                     {children}
                 </div>
             </main>
